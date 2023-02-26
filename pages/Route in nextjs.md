@@ -11,3 +11,4 @@ Getting the dynamic route key in react-router by the `usePramas()` hook but in n
 
 For reach the route by button or else there are `Link` component which default anchor but for single page application. {Do not make this mistake - Link component in nextJS is different from reactJs and imported from `'./next/link'` and that not have `href` props instead of `to` props}
 
+Wrap the `_app.js` component for navigation in next js is by the rootlayout component.
