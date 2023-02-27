@@ -1,12 +1,13 @@
+import { MongoClient, ObjectId } from "mongodb";
 import MeetupDetails from "@/components/meetups/MeetupDetails";
 
 const MeetupDetailsPage = (props) => {
   return (
     <MeetupDetails
-      title="Vipul's home"
-      image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvcjK_db1pjcqBVZq37ryXZRU-S2cMEdsrPQ&usqp=CAU"
-      address="some address , some city, some state"
-      description="First meetup"
+      title={props.meetupData.title}
+      image={props.meetupData.image}
+      address={props.meetupData.address}
+      description={props.meetupData.description}
     />
   );
 };
@@ -16,36 +17,48 @@ export default MeetupDetailsPage;
 export const getStaticProps = async (context) => {
   const meetupId = context.params.meetupId;
 
-  console.log(meetupId);
+  const client = await MongoClient.connect(
+    "mongodb+srv://vips2:Mongodb123@cluster0.ignwdde.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+
+  const meetupsCollections = db.collection("meetups");
+
+  const selectedMeetup = await meetupsCollections.findOne({
+    _id: new ObjectId(meetupId),
+  });
+
+  client.close();
 
   return {
     props: {
       meetupData: {
-        id: meetupId,
-        title: "Vipul's home",
-        image:
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvcjK_db1pjcqBVZq37ryXZRU-S2cMEdsrPQ&usqp=CAU",
-        address: "some address , some city, some state",
-        description: "First meetup",
+        id: selectedMeetup._id.toString(),
+        title: selectedMeetup.title,
+        image: selectedMeetup.image,
+        address: selectedMeetup.address,
+        description: selectedMeetup.description,
       },
     },
   };
 };
 
 export const getStaticPaths = async () => {
+  const client = await MongoClient.connect(
+    "mongodb+srv://vips2:Mongodb123@cluster0.ignwdde.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+
+  const meetupsCollections = db.collection("meetups");
+
+  const meetups = await meetupsCollections.find({}, { _id: 1 }).toArray();
+
+  client.close();
+
   return {
     fallback: false,
-    paths: [
-      {
-        params: {
-          meetupId: "m1",
-        },
-      },
-      {
-        params: {
-          meetupId: "m2",
-        },
-      },
-    ],
+    paths: meetups.map((meetup) => ({
+      params: { meetupId: meetup._id.toString() },
+    })),
   };
 };
