@@ -1,23 +1,6 @@
-import MeetupList from "@/components/meetups/MeetupList";
+import { MongoClient } from "mongodb"; // client can not see this
 
-const DUMMY_MEETUPS = [
-  {
-    id: "m1",
-    title: "Vipul's home",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvcjK_db1pjcqBVZq37ryXZRU-S2cMEdsrPQ&usqp=CAU",
-    address: "some address , some city, some state",
-    description: "First meetup",
-  },
-  {
-    id: "m2",
-    title: "kathi's home",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuIfBFC3FU9DC9MEIClYYsU1XLJIglrwIiBg&usqp=CAU",
-    address: "some address , some city, some state",
-    description: "Second meetup",
-  },
-];
+import MeetupList from "@/components/meetups/MeetupList";
 
 const HomePage = (props) => {
   return <MeetupList meetups={props.meetups} />;
@@ -34,12 +17,29 @@ const HomePage = (props) => {
 //   };
 // };
 
-export const getStaticProps = async() => {
+// client can not see this
+export const getStaticProps = async () => {
+  const client = await MongoClient.connect(
+    "mongodb+srv://vips2:Mongodb123@cluster0.ignwdde.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+
+  const meetupsCollections = db.collection("meetups");
+
+  const meetups = await meetupsCollections.find().toArray();
+
+  client.close();
+
   return {
     props: {
-      meetups: DUMMY_MEETUPS,
+      meetups: meetups.map((meetup) => ({
+        title: meetup.title,
+        image: meetup.image,
+        address: meetup.address,
+        id: meetup._id.toString(),
+      })),
     },
-    revalidate:10
+    revalidate: 10,
   };
 };
 
