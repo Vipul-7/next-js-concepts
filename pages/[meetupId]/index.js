@@ -8,7 +8,7 @@ const MeetupDetailsPage = (props) => {
       <Head>
         <title>{props.meetupData.title}</title>
         <meta name="description" content={props.meetupData.description} />
-      </Head> 
+      </Head>
       <MeetupDetails
         title={props.meetupData.title}
         image={props.meetupData.image}
@@ -63,7 +63,7 @@ export const getStaticPaths = async () => {
   client.close();
 
   return {
-    fallback: false,
+    fallback: "blocking",
     paths: meetups.map((meetup) => ({
       params: { meetupId: meetup._id.toString() },
     })),
