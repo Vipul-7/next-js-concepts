@@ -31,9 +31,7 @@ const HomePage = (props) => {
 
 // client can not see this
 export const getStaticProps = async () => {
-  const client = await MongoClient.connect(
-    "mongodb+srv://vips2:Mongodb123@cluster0.ignwdde.mongodb.net/meetups?retryWrites=true&w=majority"
-  );
+  const client = await MongoClient.connect(process.env.MONGO_CONNECTION_URI);
   const db = client.db();
 
   const meetupsCollections = db.collection("meetups");
